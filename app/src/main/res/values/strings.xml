@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">SAVE-X</string>
+    <string name="profile">Profile</string>
+    <string name="home">Home</string>
+    <string name="budget">Budget</string>
+    <string name="dash_board">Dashboard</string>
+    <string name="transactions">Transactions</string>
+    <string name="add_transactions">Add Transactions</string>
+    <string name="iconColor">iconColor</string>
+    <string name="iconScale">iconScale</string>
+    <string name="balance">Balance</string>
+    <string name="income">Income</string>
+    <string name="expenses">Expenses</string>
+    <string name="month_income">You earn</string>
+    <string name="month_expenses">You have spend </string>
+    <string name="this_month">this month</string>
+</resources>
