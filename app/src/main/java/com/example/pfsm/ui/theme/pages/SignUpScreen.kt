@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -35,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pfsm.ui.theme.design.FinanceColors
+import com.example.pfsm.ui.theme.design.bringIntoViewOnFocus
+import com.example.pfsm.ui.theme.design.onFocusLost
 import com.example.pfsm.viewModels.AppViewModelProvider
 import com.example.pfsm.viewModels.SignUpViewModel
 
@@ -57,6 +61,7 @@ fun SignUpScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center
@@ -77,7 +82,11 @@ fun SignUpScreen(
                 singleLine = true,
                 isError = uiState.usernameError != null,
                 supportingText = uiState.usernameError?.let { { Text(it, color = colors.Expense) } },
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewOnFocus()
+                    .onFocusLost { viewModel.onUsernameFocusLost() }
             )
 
             Spacer(Modifier.height(12.dp))
@@ -89,8 +98,11 @@ fun SignUpScreen(
                 singleLine = true,
                 isError = uiState.emailError != null,
                 supportingText = uiState.emailError?.let { { Text(it, color = colors.Expense) } },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewOnFocus()
+                    .onFocusLost { viewModel.onEmailFocusLost() }
             )
 
             Spacer(Modifier.height(12.dp))
@@ -101,7 +113,12 @@ fun SignUpScreen(
                 label = { Text("Password") },
                 singleLine = true,
                 isError = uiState.passwordError != null,
-                supportingText = uiState.passwordError?.let { { Text(it, color = colors.Expense) } },
+                supportingText = {
+                    Text(
+                        uiState.passwordError ?: "6 characters: A-Z, a-z, 0-9 and a special character",
+                        color = if (uiState.passwordError != null) colors.Expense else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     Text(
@@ -113,8 +130,12 @@ fun SignUpScreen(
                             .clickable { passwordVisible = !passwordVisible }
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewOnFocus()
+                    .onFocusLost { viewModel.onPasswordFocusLost() },
+
             )
 
             Spacer(Modifier.height(12.dp))
@@ -127,8 +148,11 @@ fun SignUpScreen(
                 isError = uiState.confirmPasswordError != null,
                 supportingText = uiState.confirmPasswordError?.let { { Text(it, color = colors.Expense) } },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .bringIntoViewOnFocus()
+                    .onFocusLost { viewModel.onConfirmPasswordFocusLost() }
             )
 
             uiState.generalError?.let {

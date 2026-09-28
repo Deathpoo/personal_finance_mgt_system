@@ -54,7 +54,7 @@ class SignInViewModel(
         _uiState.update { it.copy(isLoading = true, generalError = null) }
 
         viewModelScope.launch {
-            val user = userRepository.getUserByEmail(state.email.trim())
+            val user = userRepository.getUserByEmail(state.email.trim().lowercase())
             if (user == null) {
                 _uiState.update { it.copy(isLoading = false, generalError = "No account found with this email") }
                 return@launch

@@ -275,9 +275,14 @@ fun AddTransactionScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-            }
+            },
         ) {
-            DatePicker(state = datePickerState)
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+            ) {
+                DatePicker(state = datePickerState)
+            }
         }
     }
 

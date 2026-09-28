@@ -20,4 +20,7 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun updateName(userId: Int, name: String) =
         userDao.updateName(userId, name)
+
+    suspend fun updatePassword(userId: Int, newHash: String) =
+        userDao.updatePasswordHash(userId, newHash)
 }

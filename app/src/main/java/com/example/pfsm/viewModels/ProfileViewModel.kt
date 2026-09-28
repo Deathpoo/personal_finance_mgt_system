@@ -8,6 +8,8 @@ import com.example.pfsm.data.repository.DailyLimitRepository
 import com.example.pfsm.data.repository.SettingsRepository
 import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
+import com.example.pfsm.ui.theme.util.hashPassword
+import com.example.pfsm.ui.theme.util.validatePassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +25,10 @@ data class ProfileUiState(
     val currency: String = "INR",
     val themeMode: String = "system", // "light" / "dark" / "system"
     val currentDailyLimit: Double = 0.0, // whichever limit is in effect as of today
-    val isSignedOut: Boolean = false
+    val isSignedOut: Boolean = false,
+
+    val changePasswordError: String? = null,
+    val passwordChangedSuccessfully: Boolean = false,
 )
 
 private data class ProfileCombined(
@@ -103,5 +108,30 @@ class ProfileViewModel(
             sessionManager.clearSession()
             _uiState.update { it.copy(isSignedOut = true) }
         }
+    }
+
+    fun changePassword(current: String, newPassword: String, confirm: String) {
+        val user = _uiState.value.user ?: return
+
+        val error = when {
+            hashPassword(current) != user.passwordHash -> "Current password is incorrect"
+            validatePassword(newPassword) != null -> validatePassword(newPassword)
+            newPassword == current -> "New password must be different from the current one"
+            newPassword != confirm -> "New passwords don't match"
+            else -> null
+        }
+        if (error != null) {
+            _uiState.update { it.copy(changePasswordError = error) }
+            return
+        }
+
+        viewModelScope.launch {
+            userRepository.updatePassword(user.id, hashPassword(newPassword))
+            _uiState.update { it.copy(changePasswordError = null, passwordChangedSuccessfully = true) }
+        }
+    }
+
+    fun clearChangePasswordState() {
+        _uiState.update { it.copy(changePasswordError = null, passwordChangedSuccessfully = false) }
     }
 }

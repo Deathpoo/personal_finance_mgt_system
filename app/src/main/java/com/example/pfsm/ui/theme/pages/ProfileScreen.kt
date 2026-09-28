@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Person
@@ -47,6 +48,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +64,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -99,6 +102,14 @@ fun ProfileScreen(
     var showDailyLimitDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showSignOutConfirm by remember { mutableStateOf(false) }
+    var showChangePasswordDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.passwordChangedSuccessfully) {
+        if (uiState.passwordChangedSuccessfully) {
+            showChangePasswordDialog = false
+            profileViewModel.clearChangePasswordState()
+        }
+    }
 
     if (uiState.isSignedOut) {
         onSignedOut()
@@ -180,6 +191,15 @@ fun ProfileScreen(
             }
 
             item { Spacer(Modifier.height(8.dp)) }
+
+            item {
+                SettingsRow(
+                    icon = Icons.Default.Lock,
+                    label = "Change password",
+                    value = null,
+                    onClick = { showChangePasswordDialog = true }
+                )
+            }
             item {
                 Card(
                     modifier = Modifier
@@ -258,6 +278,83 @@ fun ProfileScreen(
             }
         )
     }
+
+    if (showChangePasswordDialog) {
+        ChangePasswordDialog(
+            error = uiState.changePasswordError,
+            onDismiss = {
+                showChangePasswordDialog = false
+                profileViewModel.clearChangePasswordState()
+            },
+            onSave = { current, newPass, confirm ->
+                profileViewModel.changePassword(current, newPass, confirm)
+            }
+        )
+    }
+}
+
+@Composable
+private fun ChangePasswordDialog(
+    error: String?,
+    onDismiss: () -> Unit,
+    onSave: (current: String, newPassword: String, confirm: String) -> Unit
+) {
+    var current by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf("") }
+    var visible by remember { mutableStateOf(false) }
+    val transformation = if (visible) VisualTransformation.None else PasswordVisualTransformation()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change password") },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                OutlinedTextField(
+                    value = current,
+                    onValueChange = { current = it },
+                    label = { Text("Current password") },
+                    singleLine = true,
+                    visualTransformation = transformation,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text("New password") },
+                    supportingText = { Text("6 characters: A-Z, a-z, 0-9 and a special character") },
+                    singleLine = true,
+                    visualTransformation = transformation,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = confirm,
+                    onValueChange = { confirm = it },
+                    label = { Text("Confirm new password") },
+                    singleLine = true,
+                    visualTransformation = transformation,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    if (visible) "Hide passwords" else "Show passwords",
+                    fontSize = 12.sp,
+                    color = FinanceColors.Gold,
+                    modifier = Modifier.clickable { visible = !visible }
+                )
+                error?.let {
+                    Spacer(Modifier.height(8.dp))
+                    Text(it, color = FinanceColors.Expense, fontSize = 13.sp)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(current, newPassword, confirm) }) { Text("Update") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
 
 @Composable

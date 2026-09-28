@@ -6,6 +6,10 @@ import com.example.pfsm.data.entities.UserEntity
 import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
 import com.example.pfsm.ui.theme.util.hashPassword
+import com.example.pfsm.ui.theme.util.validateConfirmPassword
+import com.example.pfsm.ui.theme.util.validateEmail
+import com.example.pfsm.ui.theme.util.validatePassword
+import com.example.pfsm.ui.theme.util.validateUsername
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,30 +56,22 @@ class SignUpViewModel(
 
     fun submit() {
         val state = _uiState.value
-        var hasError = false
+        val usernameError = validateUsername(state.username)
+        val emailError = validateEmail(state.email)
+        val passwordError = validatePassword(state.password)
+        val confirmError = validateConfirmPassword(state.password, state.confirmPassword)
 
-        if (state.username.isBlank()) {
-            _uiState.update { it.copy(usernameError = "Enter your name") }
-            hasError = true
-        }
-        if (state.email.isBlank() || !state.email.contains("@")) {
-            _uiState.update { it.copy(emailError = "Enter a valid email") }
-            hasError = true
-        }
-        val hasLetter = state.password.any { it.isLetter() }
-        val hasDigit = state.password.any { it.isDigit() }
-        if (state.password.length < 6 || !hasLetter || !hasDigit) {
+        if (listOf(usernameError, emailError, passwordError, confirmError).any { it != null }) {
             _uiState.update {
-                it.copy(passwordError = "At least 6 characters, with both letters and numbers")
+                it.copy(
+                    usernameError = usernameError,
+                    emailError = emailError,
+                    passwordError = passwordError,
+                    confirmPasswordError = confirmError
+                )
             }
-            hasError = true
+            return
         }
-        if (state.confirmPassword != state.password) {
-            _uiState.update { it.copy(confirmPasswordError = "Passwords don't match") }
-            hasError = true
-        }
-        if (hasError) return
-
         _uiState.update { it.copy(isLoading = true, generalError = null) }
 
         viewModelScope.launch {
@@ -94,6 +90,24 @@ class SignUpViewModel(
             val newUserId = userRepository.register(newUser).toInt()
             sessionManager.setCurrentUser(newUserId)
             _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+        }
+    }
+
+    fun onUsernameFocusLost() {
+        _uiState.update { it.copy(usernameError = validateUsername(it.username)) }
+    }
+
+    fun onEmailFocusLost() {
+        _uiState.update { it.copy(emailError = validateEmail(it.email)) }
+    }
+
+    fun onPasswordFocusLost() {
+        _uiState.update { it.copy(passwordError = validatePassword(it.password)) }
+    }
+
+    fun onConfirmPasswordFocusLost() {
+        _uiState.update {
+            it.copy(confirmPasswordError = validateConfirmPassword(it.password, it.confirmPassword))
         }
     }
 }
