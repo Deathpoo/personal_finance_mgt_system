@@ -41,11 +41,7 @@ class MainActivity : ComponentActivity() {
         }
         enableEdgeToEdge()
         setContent {
-            PFSMTheme {
-                Surface{
-                    PFSMApp()
-                }
-            }
+            PFSMApp()
         }
     }
 }

@@ -18,7 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -69,8 +72,8 @@ fun PFSMNavGraph() {
     val profileUiState by profileViewModel.uiState.collectAsState()
     val profileBitmap = rememberProfileBitmap(profileUiState.user?.profilePicUri)
 
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    val useNavigationRail = screenWidthDp >= 600
+    val configuration = LocalConfiguration.current
+    val useNavigationRail = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     fun navigateToTabRoute(route: String) {
         navController.navigate(route) {
@@ -132,7 +135,7 @@ fun PFSMNavGraph() {
             NavHost(
                 navController = navController,
                 startDestination = startDestination!!,
-                modifier = Modifier.weight(1f)
+                modifier = if(useNavigationRail) Modifier.weight(1f).statusBarsPadding() else  Modifier.weight(1f)
             ) {
                 composable(Screen.Home.route) {
                     HomeContentPage(

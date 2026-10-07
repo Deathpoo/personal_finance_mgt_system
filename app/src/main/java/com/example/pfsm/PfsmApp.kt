@@ -51,22 +51,3 @@ fun PFSMApp() {
         }
     }
 }
-
-@Preview(
-    name = "Light Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO
-)
-@Preview(
-    name = "Dark Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-
-@Composable
-fun PfsmAppPreview(){
-    PFSMTheme {
-        PFSMApp()
-    }
-}
-
