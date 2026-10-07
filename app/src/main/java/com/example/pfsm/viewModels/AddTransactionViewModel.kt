@@ -12,6 +12,7 @@ import com.example.pfsm.data.repository.DailyLimitRepository
 import com.example.pfsm.data.repository.TransactionRepository
 import com.example.pfsm.data.session.SessionManager
 import androidx.lifecycle.SavedStateHandle
+import com.example.pfsm.ui.theme.util.toEditableAmountString
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -78,7 +79,7 @@ class AddTransactionViewModel(
                                 it.copy(
                                     isEditMode = true,
                                     type = existing.type,
-                                    amountText = existing.amount.toString(),
+                                    amountText = existing.amount.toEditableAmountString(),
                                     description = existing.description ?: "",
                                     date = LocalDate.parse(existing.transactionDate),
                                     selectedCategoryId = existing.categoryId

@@ -75,6 +75,7 @@ import com.example.pfsm.ui.theme.design.responsiveWidth
 import com.example.pfsm.ui.theme.util.MonthYearPickerDialog
 import com.example.pfsm.ui.theme.util.YearPickerDialog
 import com.example.pfsm.ui.theme.util.toReadableAmount
+import com.example.pfsm.ui.theme.util.toSmartAmount
 import com.example.pfsm.ui.theme.util.toTransactionReadableAmount
 import com.example.pfsm.viewModels.AppViewModelProvider
 import com.example.pfsm.viewModels.CategorySpendItem
@@ -731,7 +732,7 @@ private fun DayTransactionRow(txn: TransactionEntity) {
                 fontSize = 13.sp
             )
             Text(
-                "$sign₹${txn.amount.toTransactionReadableAmount()}",
+                "$sign₹${txn.amount.toSmartAmount()}",
                 color = amountColor,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold

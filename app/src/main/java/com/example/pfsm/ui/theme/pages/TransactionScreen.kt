@@ -67,6 +67,8 @@ import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.PFSMTheme
 import com.example.pfsm.ui.theme.design.responsiveWidth
+import com.example.pfsm.ui.theme.util.toEditableAmountString
+import com.example.pfsm.ui.theme.util.toSmartAmount
 import com.example.pfsm.ui.theme.util.toTransactionReadableAmount
 import com.example.pfsm.viewModels.AppViewModelProvider
 import com.example.pfsm.viewModels.TransactionFilters
@@ -349,7 +351,7 @@ private fun TransactionListRow(
             }
 
             Text(
-                text = "$sign₹${txn.amount.toTransactionReadableAmount()}",
+                text = "$sign₹${txn.amount.toSmartAmount()}",
                 color = amountColor,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold
@@ -378,8 +380,6 @@ private fun FilterDialog(
     var dateTo by remember { mutableStateOf(filters.dateTo) }
     var showFromPicker by remember { mutableStateOf(false) }
     var showToPicker by remember { mutableStateOf(false) }
-
-
     val relevantCategories = when (filters.type) {
         "credit" -> categories.filter { it.type == "income" }
         "debit" -> categories.filter { it.type == "expense" }

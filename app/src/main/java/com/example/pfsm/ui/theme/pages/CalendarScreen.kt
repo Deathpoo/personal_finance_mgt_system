@@ -75,6 +75,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
+import com.example.pfsm.ui.theme.util.toSmartAmount
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -415,14 +416,14 @@ private fun SelectedDateHeader(
 
         Column(horizontalAlignment = Alignment.End) {
             Text(
-                text = "Spent: ₹${spent.toTransactionReadableAmount()}",
+                text = "Spent: ₹${spent.toSmartAmount()}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 13.sp,
                 color = if (isOverLimit) colors.Expense else colors.Income
             )
             if (limit > 0) {
                 Text(
-                    text = "Limit: ₹${limit.toTransactionReadableAmount()}",
+                    text = "Limit: ₹${limit.toSmartAmount()}",
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -488,7 +489,7 @@ private fun CalendarTransactionRow(txn: TransactionEntity) {
                 fontSize = 14.sp
             )
             Text(
-                text = "$sign₹${txn.amount.toTransactionReadableAmount()}",
+                text = "$sign₹${txn.amount.toSmartAmount()}",
                 color = amountColor,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold

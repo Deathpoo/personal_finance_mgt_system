@@ -64,6 +64,7 @@ import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.util.MonthYearPickerDialog
 import com.example.pfsm.ui.theme.util.toTransactionReadableAmount
 import com.example.pfsm.ui.theme.design.responsiveWidth
+import com.example.pfsm.ui.theme.util.toSmartAmount
 import com.example.pfsm.viewModels.AppViewModelProvider
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -561,7 +562,7 @@ private fun TransactionRow(txn: TransactionEntity) {
                 Text(txn.transactionDate, fontSize = 12.sp, color = Color(0xFF8B8E99))
             }
             Text(
-                text = "$sign₹${txn.amount.toTransactionReadableAmount()}",
+                text = "$sign₹${txn.amount.toSmartAmount()}",
                 color = amountColor,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold

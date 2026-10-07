@@ -14,6 +14,7 @@ import com.example.pfsm.data.repository.BudgetRepository
 import com.example.pfsm.data.repository.CategoryRepository
 import com.example.pfsm.data.repository.TransactionRepository
 import com.example.pfsm.data.session.SessionManager
+import com.example.pfsm.ui.theme.util.toEditableAmountString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -220,14 +221,13 @@ class BudgetDetailViewModel(
     }
 
     // EDIT MODE
-
     fun startEdit() {
         val state = _uiState.value
         _uiState.update {
             it.copy(
                 isEditing = true,
                 editName = state.name,
-                editAmountText = if (state.amount > 0) state.amount.toString() else "",
+                editAmountText = if (state.amount > 0) state.amount.toEditableAmountString() else "",
                 editSelectedCategoryIds = currentLinkedCategoryIds,
                 editNameError = null,
                 editAmountError = null,

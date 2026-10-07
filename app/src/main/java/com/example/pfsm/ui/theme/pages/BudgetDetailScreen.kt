@@ -75,6 +75,7 @@ import androidx.compose.ui.draw.scale
 import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.util.toReadableAmount
+import com.example.pfsm.ui.theme.util.toSmartAmount
 import com.example.pfsm.ui.theme.util.toTransactionReadableAmount
 import com.example.pfsm.viewModels.AppViewModelProvider
 import com.example.pfsm.viewModels.BudgetDetailUiState
@@ -569,7 +570,7 @@ private fun BudgetDetailTransactionRow(txn: TransactionEntity) {
                 )
             }
             Text(
-                "−₹${txn.amount.toTransactionReadableAmount()}",
+                "−₹${txn.amount.toSmartAmount()}",
                 color = colors.Expense,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
