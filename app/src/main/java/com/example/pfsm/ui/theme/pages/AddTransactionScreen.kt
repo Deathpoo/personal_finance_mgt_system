@@ -73,6 +73,7 @@ import com.example.pfsm.viewModels.AddTransactionViewModel
 import com.example.pfsm.viewModels.AppViewModelProvider
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -254,19 +255,22 @@ fun AddTransactionScreen(
 
 
     if (showDatePicker) {
+        // 1. Convert initial LocalDate to UTC Epoch Millis
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = uiState.date
-                .atStartOfDay(ZoneId.systemDefault())
+                .atStartOfDay(ZoneOffset.UTC)
                 .toInstant()
                 .toEpochMilli()
         )
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
+                        // 2. Convert selected UTC Millis back to LocalDate using UTC
                         val picked = Instant.ofEpochMilli(millis)
-                            .atZone(ZoneId.systemDefault())
+                            .atZone(ZoneOffset.UTC)
                             .toLocalDate()
                         viewModel.onDateChanged(picked)
                     }
@@ -278,8 +282,7 @@ fun AddTransactionScreen(
             },
         ) {
             Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 DatePicker(state = datePickerState)
             }

@@ -119,7 +119,7 @@ fun PFSMNavGraph() {
             }
         },
     ) { scaffoldPadding ->
-        Row(modifier = Modifier.padding(scaffoldPadding).fillMaxSize()) {
+        Row(modifier =if(useNavigationRail) Modifier.fillMaxSize() else Modifier.padding(scaffoldPadding).fillMaxSize()) {
             if (showBars && useNavigationRail) {
                 NavigationRailBar(
                     selectedItem = selectedTabIndex,

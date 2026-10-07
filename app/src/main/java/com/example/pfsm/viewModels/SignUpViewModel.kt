@@ -75,7 +75,7 @@ class SignUpViewModel(
         _uiState.update { it.copy(isLoading = true, generalError = null) }
 
         viewModelScope.launch {
-            val existing = userRepository.getUserByEmail(state.email.trim())
+            val existing = userRepository.getUserByEmail(state.email.trim().lowercase())
             if (existing != null) {
                 _uiState.update { it.copy(isLoading = false, generalError = "An account with this email already exists") }
                 return@launch
@@ -83,7 +83,7 @@ class SignUpViewModel(
 
             val newUser = UserEntity(
                 username = state.username.trim(),
-                email = state.email.trim(),
+                email = state.email.trim().lowercase(),
                 passwordHash = hashPassword(state.password),
                 createdAt = System.currentTimeMillis().toString()
             )
