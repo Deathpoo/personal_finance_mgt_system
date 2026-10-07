@@ -117,7 +117,7 @@ fun AddTransactionScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                     Text(
-                        text = "Add Transaction",
+                        text = if(uiState.isEditMode) "Edit Transaction" else "Add Transaction",
                         fontSize = 20.sp,
                     )
                 }
