@@ -223,6 +223,10 @@ class DashboardViewModel(
     fun onYearChanged(year: Int) {
         selectedYearFlow.value = year
         selectedDayFlow.value = null
+
+        selectedMonthFlow.update { currentMonth ->
+            YearMonth.of(year, currentMonth.monthValue)
+        }
     }
 
     fun onMonthSelected(month: YearMonth) {
