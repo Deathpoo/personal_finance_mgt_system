@@ -3,6 +3,7 @@ package com.example.pfsm.ui.theme.pages
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -375,13 +376,13 @@ fun IncomeExpenseSplitCard(uiState: HomeUiState) {
                     modifier = Modifier
                         .weight(incomeFraction.coerceIn(0.02f, 0.98f))
                         .fillMaxSize()
-                        .background(FinanceColors.Income)
+                        .background(if(uiState.incomePercent == 0 && uiState.expensePercent == 0 ) Color.LightGray else if(uiState.incomePercent == 0) FinanceColors.Expense else FinanceColors.Income)
                 )
                 Box(
                     modifier = Modifier
                         .weight((1f - incomeFraction).coerceIn(0.02f, 0.98f))
                         .fillMaxSize()
-                        .background(FinanceColors.Expense)
+                        .background(if(uiState.incomePercent == 0 && uiState.expensePercent == 0 ) Color.LightGray else if(uiState.expensePercent== 0) FinanceColors.Income else FinanceColors.Expense)
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -412,7 +413,7 @@ private fun LegendDot(color: Color, label: String) {
                 .background(color)
         )
         Spacer(Modifier.width(6.dp))
-        Text(label, fontSize = 13.sp, color = Color(0xFF4A4D57))
+        Text(label, fontSize = 13.sp, color = Color(0xFF8B8E99))
     }
 }
 

@@ -299,7 +299,7 @@ private fun YearSummaryCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = colors.Ink)
+        colors = CardDefaults.cardColors(containerColor = colors.InkSurface)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
