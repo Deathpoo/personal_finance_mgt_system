@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -22,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,8 +53,11 @@ import com.example.pfsm.data.entities.CategoryEntity
 import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.responsiveWidth
+import com.example.pfsm.ui.theme.util.MonthYearPickerDialog
+import com.example.pfsm.ui.theme.util.YearPickerDialog
 import com.example.pfsm.viewModels.AddBudgetViewModel
 import com.example.pfsm.viewModels.AppViewModelProvider
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +68,8 @@ fun AddBudgetScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = FinanceColors
+
+    var showPeriodPicker by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) onSaved()
@@ -165,6 +176,56 @@ fun AddBudgetScreen(
                         selected = uiState.periodType == "yearly",
                         modifier = Modifier.weight(1f),
                         onClick = { viewModel.onPeriodTypeChanged("yearly") }
+                    )
+                }
+            }
+
+            // ---------- Which month / year ----------
+            Column {
+                Text(
+                    if (uiState.periodType == "monthly") "Month" else "Year",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable { showPeriodPicker = true }
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        if (uiState.periodType == "monthly")
+                            uiState.selectedMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+                        else
+                            uiState.selectedYear.toString()
+                    )
+                }
+            }
+
+            if (showPeriodPicker) {
+                if (uiState.periodType == "monthly") {
+                    MonthYearPickerDialog(
+                        initialMonth = uiState.selectedMonth,
+                        onDismiss = { showPeriodPicker = false },
+                        onConfirm = {
+                            viewModel.onMonthSelected(it)
+                            showPeriodPicker = false
+                        }
+                    )
+                } else {
+                    YearPickerDialog(
+                        initialYear = uiState.selectedYear,
+                        onDismiss = { showPeriodPicker = false },
+                        onConfirm = {
+                            viewModel.onYearSelected(it)
+                            showPeriodPicker = false
+                        }
                     )
                 }
             }

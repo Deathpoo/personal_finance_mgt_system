@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pfsm.data.entities.BudgetEntity
 import com.example.pfsm.data.entities.CategoryEntity
-
+import java.time.YearMonth
 import com.example.pfsm.data.repository.BudgetRepository
 import com.example.pfsm.data.repository.CategoryRepository
 import com.example.pfsm.data.session.SessionManager
@@ -33,7 +33,10 @@ data class AddBudgetUiState(
     val amountError: String? = null,
     val categoryError: String? = null,
 
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+
+    val selectedMonth: YearMonth = YearMonth.now(),
+    val selectedYear: Int = LocalDate.now().year,
 )
 
 class AddBudgetViewModel(
@@ -86,6 +89,14 @@ class AddBudgetViewModel(
         }
     }
 
+    fun onMonthSelected(month: YearMonth) {
+        _uiState.update { it.copy(selectedMonth = month) }
+    }
+
+    fun onYearSelected(year: Int) {
+        _uiState.update { it.copy(selectedYear = year) }
+    }
+
     fun save() {
         val state = _uiState.value
         val userId = state.currentUserId ?: return
@@ -106,14 +117,14 @@ class AddBudgetViewModel(
         }
         if (hasError || amount == null) return
 
-        val today = LocalDate.now()
+
         val budget = BudgetEntity(
             userId = userId,
             name = state.name.trim(),
             amount = amount,
             periodType = state.periodType,
-            month = if (state.periodType == "monthly") today.monthValue else null,
-            year = today.year,
+            month = if (state.periodType == "monthly") state.selectedMonth.monthValue else null,
+            year = if (state.periodType == "monthly") state.selectedMonth.year else state.selectedYear,
             isOverall = state.budgetType == "overall"
         )
 
