@@ -88,8 +88,19 @@ import kotlin.math.roundToInt
 
 // Fixed palette for donut segments
 private val DonutPalette = listOf(
-    Color(0xFFFB7185), Color(0xFFE8B34E), Color(0xFF34D399),
-    Color(0xFF60A5FA), Color(0xFFA78BFA), Color(0xFFF472B6)
+    Color(0xFFFB7185), // Rose
+    Color(0xFF60A5FA), // Blue
+    Color(0xFFE8B34E), // Gold
+    Color(0xFF34D399), // Emerald
+    Color(0xFFA78BFA), // Purple
+    Color(0xFFF97316), // Orange
+    Color(0xFFF472B6), // Pink
+    Color(0xFF06B6D4), // Cyan
+    Color(0xFF84CC16), // Lime
+    Color(0xFFEF4444), // Red
+    Color(0xFF14B8A6), // Teal
+    Color(0xFF64748B)  // Slate
+
 )
 
 @Composable
@@ -948,7 +959,7 @@ fun CategoryDonutChartPreview(){
                     "Icons.Default.Fastfood",
                     30000.0,
                     30
-                )
+                ),
             )
         )
     }
@@ -1007,7 +1018,7 @@ fun DailyChartPreview(){
                 DayBarData(
                     5,
                     1000.0
-                )
+                ),
             ),
             5,
             {}
