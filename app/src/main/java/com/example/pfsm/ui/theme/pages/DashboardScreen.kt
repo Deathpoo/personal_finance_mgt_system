@@ -485,7 +485,7 @@ private fun TrendLineChart(data: List<MonthBarData>) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "M${index + 1}",
+                                text = monthData.label,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
