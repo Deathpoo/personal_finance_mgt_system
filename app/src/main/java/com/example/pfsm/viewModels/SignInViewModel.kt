@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
 import com.example.pfsm.ui.theme.util.hashPassword
+import com.example.pfsm.ui.theme.util.verifyPassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,7 +60,7 @@ class SignInViewModel(
                 _uiState.update { it.copy(isLoading = false, generalError = "No account found with this email") }
                 return@launch
             }
-            if (user.passwordHash != hashPassword(state.password)) {
+            if (!verifyPassword(state.password, user.passwordHash)) {
                 _uiState.update { it.copy(isLoading = false, generalError = "Incorrect password") }
                 return@launch
             }

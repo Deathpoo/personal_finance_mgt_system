@@ -10,6 +10,7 @@ import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
 import com.example.pfsm.ui.theme.util.hashPassword
 import com.example.pfsm.ui.theme.util.validatePassword
+import com.example.pfsm.ui.theme.util.verifyPassword
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -114,7 +115,7 @@ class ProfileViewModel(
         val user = _uiState.value.user ?: return
 
         val error = when {
-            hashPassword(current) != user.passwordHash -> "Current password is incorrect"
+            !verifyPassword(current, user.passwordHash) -> "Current password is incorrect"
             validatePassword(newPassword) != null -> validatePassword(newPassword)
             newPassword == current -> "New password must be different from the current one"
             newPassword != confirm -> "New passwords don't match"
