@@ -46,8 +46,9 @@ interface BudgetDao {
     }
 
     @Transaction
-    @Query("SELECT * FROM budgets WHERE id = :budgetId")
-    fun getBudgetWithCategoriesById(budgetId: Int): Flow<BudgetWithCategories?>
+    @Query("SELECT * FROM budgets WHERE id = :budgetId AND userId = :userId")
+    fun getBudgetWithCategoriesById(budgetId: Int, userId: Int): Flow<BudgetWithCategories?>
+
 
     @Delete
     suspend fun delete(budget: BudgetEntity)

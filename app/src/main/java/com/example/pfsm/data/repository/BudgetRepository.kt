@@ -15,8 +15,8 @@ class BudgetRepository(private val budgetDao: BudgetDao) {
     suspend fun updateBudget(budget: BudgetEntity, categoryIds: List<Int>) =
         budgetDao.updateBudget(budget, categoryIds)
 
-    fun getBudgetWithCategoriesById(budgetId: Int): Flow<BudgetWithCategories?> =
-        budgetDao.getBudgetWithCategoriesById(budgetId)
+    fun getBudgetWithCategoriesById(budgetId: Int, userId: Int): Flow<BudgetWithCategories?> =
+        budgetDao.getBudgetWithCategoriesById(budgetId, userId)
 
     fun getBudgetsWithCategories(
         userId: Int,

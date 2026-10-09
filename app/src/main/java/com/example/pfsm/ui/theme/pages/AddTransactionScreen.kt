@@ -68,7 +68,11 @@ import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.PFSMTheme
 import com.example.pfsm.ui.theme.design.responsiveWidth
 import com.example.pfsm.ui.theme.util.Atma
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.StackSansNotch
+import com.example.pfsm.ui.theme.util.amountExceedsMax
+import com.example.pfsm.ui.theme.util.toReadableAmount
 import com.example.pfsm.viewModels.AddTransactionViewModel
 import com.example.pfsm.viewModels.AppViewModelProvider
 import java.time.Instant
@@ -86,6 +90,7 @@ fun AddTransactionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = FinanceColors
+    val amountTooLarge = amountExceedsMax(uiState.amountText)
 
     var showDatePicker by remember { mutableStateOf(false) }
 
@@ -165,8 +170,12 @@ fun AddTransactionScreen(
                 leadingIcon = { Text("₹", fontSize = 18.sp) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = uiState.amountError != null,
-                supportingText = uiState.amountError?.let { { Text(it, color = colors.Expense) } },
+                isError = uiState.amountError != null || amountTooLarge,
+                supportingText = {
+                    val message = uiState.amountError
+                        ?: if (amountTooLarge) "Maximum amount is ₹${MAX_AMOUNT.toReadableAmount()}" else null
+                    message?.let { Text(it, color = colors.Expense) }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -174,6 +183,7 @@ fun AddTransactionScreen(
             OutlinedTextField(
                 value = uiState.description,
                 onValueChange = viewModel::onDescriptionChanged,
+                supportingText = { Text("${uiState.description.length}/$MAX_TEXT_LENGTH") },
                 label = { Text("Description (optional)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -232,6 +242,7 @@ fun AddTransactionScreen(
             //  Save
             Button(
                 onClick = { viewModel.attemptSave() },
+                enabled = !amountTooLarge,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

@@ -37,6 +37,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -74,6 +75,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
+import com.example.pfsm.ui.theme.util.MonthYearPickerDialog
+import com.example.pfsm.ui.theme.util.YearPickerDialog
+import com.example.pfsm.ui.theme.util.amountExceedsMax
 import com.example.pfsm.ui.theme.util.toReadableAmount
 import com.example.pfsm.ui.theme.util.toSmartAmount
 import com.example.pfsm.ui.theme.util.toTransactionReadableAmount
@@ -82,6 +88,7 @@ import com.example.pfsm.viewModels.BudgetDetailUiState
 import com.example.pfsm.viewModels.BudgetDetailViewModel
 import com.example.pfsm.viewModels.CategoryBreakdownItem
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -202,6 +209,8 @@ fun BudgetDetailScreen(
             uiState = uiState,
             onNameChanged = viewModel::onEditNameChanged,
             onAmountChanged = viewModel::onEditAmountChanged,
+            onMonthSelected = viewModel::onEditMonthSelected,
+            onYearSelected = viewModel::onEditYearSelected,
             onCategoryToggled = viewModel::onEditCategoryToggled,
             onCancel = viewModel::cancelEdit,
             onSave = viewModel::saveEdit
@@ -246,11 +255,16 @@ private fun EditBudgetDialog(
     uiState: BudgetDetailUiState,
     onNameChanged: (String) -> Unit,
     onAmountChanged: (String) -> Unit,
+    onMonthSelected: (YearMonth) -> Unit,
+    onYearSelected: (Int) -> Unit,
     onCategoryToggled: (Int) -> Unit,
     onCancel: () -> Unit,
     onSave: () -> Unit
 ) {
     val colors = FinanceColors
+
+    var showPicker by remember { mutableStateOf(false) }
+    val amountTooLarge = amountExceedsMax(uiState.editAmountText)
 
     AlertDialog(
         onDismissRequest = onCancel,
@@ -267,18 +281,17 @@ private fun EditBudgetDialog(
                     label = { Text("Budget name") },
                     singleLine = true,
                     isError = uiState.editNameError != null,
-                    supportingText = uiState.editNameError?.let {
-                        {
-                            Text(
-                                it,
-                                color = colors.Expense
-                            )
-                        }
+                    supportingText = {
+                        Text(
+                            uiState.editNameError ?: "${uiState.name.length}/$MAX_TEXT_LENGTH",
+                            color = if (uiState.editNameError != null) colors.Expense else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(12.dp))
+
 
                 OutlinedTextField(
                     value = uiState.editAmountText,
@@ -287,17 +300,34 @@ private fun EditBudgetDialog(
                     leadingIcon = { Text("₹") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    isError = uiState.editAmountError != null,
-                    supportingText = uiState.editAmountError?.let {
-                        {
-                            Text(
-                                it,
-                                color = colors.Expense
-                            )
-                        }
+                    isError = uiState.editAmountError != null || amountTooLarge,
+                    supportingText = {
+                        val message = uiState.editAmountError
+                            ?: if (amountTooLarge) "Maximum amount is ₹${MAX_AMOUNT.toReadableAmount()}" else null
+                        message?.let { Text(it, color = colors.Expense) }
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable { showPicker = true }
+                        .padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        if (uiState.periodType == "monthly")
+                            uiState.editMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy"))
+                        else
+                            uiState.editYear.toString()
+                    )
+                }
 
                 if (!uiState.isOverall) {
                     Spacer(Modifier.height(16.dp))
@@ -347,12 +377,31 @@ private fun EditBudgetDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onSave) { Text("Save") }
+            TextButton(
+                onClick = onSave,
+                enabled = !amountTooLarge
+            ) { Text("Save") }
         },
         dismissButton = {
             TextButton(onClick = onCancel) { Text("Cancel") }
         }
     )
+
+    if (showPicker) {
+        if (uiState.periodType == "monthly") {
+            MonthYearPickerDialog(
+                initialMonth = uiState.editMonth,
+                onDismiss = { showPicker = false },
+                onConfirm = { onMonthSelected(it); showPicker = false }
+            )
+        } else {
+            YearPickerDialog(
+                initialYear = uiState.editYear,
+                onDismiss = { showPicker = false },
+                onConfirm = { onYearSelected(it); showPicker = false }
+            )
+        }
+    }
 }
 
 @Composable

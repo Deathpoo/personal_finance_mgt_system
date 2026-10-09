@@ -28,6 +28,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import kotlin.collections.associate
+import kotlin.math.roundToInt
 
 data class CalendarDay(
     val date: LocalDate,
@@ -119,8 +120,8 @@ class HomeViewModel(
         }.collectLatest { data ->
             val balance = data.income - data.expense
             val totalFlow = data.income + data.expense
-            val incomePct = if (totalFlow > 0) ((data.income / totalFlow) * 100).toInt() else 0
-            val expensePct = if (totalFlow > 0) ((data.expense / totalFlow) * 100).toInt() else 0
+            val incomePct = if (totalFlow > 0) ((data.income / totalFlow) * 100).roundToInt() else 0
+            val expensePct = if (totalFlow > 0) 100 - incomePct else 0
 
             val spentByDate = data.dailyTotals.associate { it.transactionDate to it.spent }
 

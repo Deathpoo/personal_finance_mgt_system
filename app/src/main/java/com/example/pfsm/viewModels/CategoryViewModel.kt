@@ -58,14 +58,26 @@ class CategoryViewModel(
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
-    fun addCategory(name: String, icon: String, type: String) {
-        val userId = _uiState.value.currentUserId ?: return
-        if (name.isBlank()) return
+    fun addCategory(name: String, icon: String, type: String): String? {
+        val userId = _uiState.value.currentUserId ?: return "Not signed in"
+        val cleanName = name.trim()
+        if (cleanName.isBlank()) return "Enter a category name"
+
+        val sameTypeCategories =
+            if (type == "income") _uiState.value.incomeCategories else _uiState.value.expenseCategories
+
+        val duplicate = sameTypeCategories.firstOrNull { it.name.trim().equals(cleanName, ignoreCase = true) }
+        if (duplicate != null) {
+            val typeLabel = if (type == "income") "Income" else "Expense"
+            return "\"${duplicate.name}\" already exists in $typeLabel"
+        }
+
         viewModelScope.launch {
             categoryRepository.add(
-                CategoryEntity(userId = userId, name = name.trim(), icon = icon, type = type)
+                CategoryEntity(userId = userId, name = cleanName, icon = icon, type = type)
             )
         }
+        return null
     }
 
     fun deleteCategory(category: CategoryEntity) {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pfsm.data.entities.UserEntity
 import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.hashPassword
 import com.example.pfsm.ui.theme.util.validateConfirmPassword
 import com.example.pfsm.ui.theme.util.validateEmail
@@ -39,7 +40,7 @@ class SignUpViewModel(
     val uiState: StateFlow<SignUpUiState> = _uiState.asStateFlow()
 
     fun onUsernameChanged(value: String) {
-        _uiState.update { it.copy(username = value, usernameError = null) }
+        _uiState.update { it.copy(username = value.take(MAX_TEXT_LENGTH), usernameError = null) }
     }
 
     fun onEmailChanged(value: String) {

@@ -16,7 +16,7 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
 
     suspend fun delete(txn: TransactionEntity) = transactionDao.delete(txn)
 
-    suspend fun getById(id: Int): TransactionEntity? = transactionDao.getById(id)
+    suspend fun getById(id: Int, userId: Int): TransactionEntity? = transactionDao.getById(id, userId)
     fun getRecent(userId: Int): Flow<List<TransactionEntity>> =
         transactionDao.getRecent(userId)
 

@@ -796,13 +796,13 @@ private fun LimitAdherenceCard(withinCount: Int, overCount: Int) {
                     modifier = Modifier
                         .weight(withinFraction.coerceIn(0.02f, 0.98f))
                         .fillMaxSize()
-                        .background(colors.Income)
+                        .background(if(withinCount == 0)colors.Expense else colors.Income)
                 )
                 Box(
                     modifier = Modifier
                         .weight((1f - withinFraction).coerceIn(0.02f, 0.98f))
                         .fillMaxSize()
-                        .background(colors.Expense)
+                        .background( if(withinCount == withinCount + overCount) colors.Income else colors.Expense)
                 )
             }
             Spacer(Modifier.height(8.dp))

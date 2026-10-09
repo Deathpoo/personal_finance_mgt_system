@@ -76,6 +76,7 @@ import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.PFSMTheme
 import com.example.pfsm.ui.theme.design.responsiveWidth
 import com.example.pfsm.ui.theme.util.Atma
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.StackSansNotch
 import com.example.pfsm.ui.theme.util.toReadableAmount
 import com.example.pfsm.viewModels.AppViewModelProvider
@@ -522,7 +523,8 @@ private fun EditNameDialog(currentName: String, onDismiss: () -> Unit, onSave: (
         text = {
             OutlinedTextField(
                 value = text,
-                onValueChange = { text = it },
+                onValueChange = { text = it.take(MAX_TEXT_LENGTH) },
+                supportingText = { Text("${text.length}/$MAX_TEXT_LENGTH") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )

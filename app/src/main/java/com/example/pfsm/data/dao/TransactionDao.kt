@@ -23,8 +23,8 @@ interface TransactionDao {
     @Delete
     suspend fun delete(txn: TransactionEntity)
 
-    @Query("SELECT * FROM transactions WHERE id = :id")
-    suspend fun getById(id: Int): TransactionEntity?
+    @Query("SELECT * FROM transactions WHERE id = :id AND userId = :userId")
+    suspend fun getById(id: Int, userId: Int): TransactionEntity?
 
 
     @Query("SELECT * FROM transactions WHERE userId = :userId ORDER BY createdAt DESC LIMIT 2")

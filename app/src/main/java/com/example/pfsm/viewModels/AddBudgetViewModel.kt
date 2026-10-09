@@ -9,6 +9,9 @@ import java.time.YearMonth
 import com.example.pfsm.data.repository.BudgetRepository
 import com.example.pfsm.data.repository.CategoryRepository
 import com.example.pfsm.data.session.SessionManager
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
+import com.example.pfsm.ui.theme.util.toReadableAmount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,7 +70,7 @@ class AddBudgetViewModel(
     }
 
     fun onNameChanged(name: String) {
-        _uiState.update { it.copy(name = name, nameError = null) }
+        _uiState.update { it.copy(name = name.take(MAX_TEXT_LENGTH), nameError = null) }
     }
 
     fun onAmountChanged(text: String) {
@@ -113,6 +116,10 @@ class AddBudgetViewModel(
         }
         if (state.budgetType == "category" && state.selectedCategoryIds.isEmpty()) {
             _uiState.update { it.copy(categoryError = "Select at least one category") }
+            hasError = true
+        }
+        if (amount == null || amount <= 0.0 || amount > MAX_AMOUNT) {
+            _uiState.update { it.copy(amountError = "Enter a valid amount (max ₹${MAX_AMOUNT.toReadableAmount()})") }
             hasError = true
         }
         if (hasError || amount == null) return

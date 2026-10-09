@@ -14,7 +14,10 @@ import com.example.pfsm.data.repository.BudgetRepository
 import com.example.pfsm.data.repository.CategoryRepository
 import com.example.pfsm.data.repository.TransactionRepository
 import com.example.pfsm.data.session.SessionManager
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.toEditableAmountString
+import com.example.pfsm.ui.theme.util.toReadableAmount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -68,6 +71,10 @@ data class BudgetDetailUiState(
     val isLoading: Boolean = true,
 
     val isDeleting: Boolean = false,
+
+    val periodType: String = "monthly",
+    val editMonth: YearMonth = YearMonth.now(),
+    val editYear: Int = LocalDate.now().year,
 )
 
 class BudgetDetailViewModel(
@@ -97,7 +104,7 @@ class BudgetDetailViewModel(
                 .filterNotNull()
                 .flatMapLatest { userId ->
                     combine(
-                        budgetRepository.getBudgetWithCategoriesById(budgetId),
+                        budgetRepository.getBudgetWithCategoriesById(budgetId, userId),
                         transactionRepository.getAllForUser(userId),
                         categoryRepository.getAllForUser(userId)
                     ) { budgetWithCategories, allTransactions, allCategories ->
@@ -128,7 +135,9 @@ class BudgetDetailViewModel(
                             editableExpenseCategories = expenseCategories,
                             editNameError = current.editNameError,
                             editAmountError = current.editAmountError,
-                            editCategoryError = current.editCategoryError
+                            editCategoryError = current.editCategoryError,
+                            editMonth = current.editMonth,
+                            editYear = current.editYear,
                         )
                     }
                 }
@@ -195,7 +204,8 @@ class BudgetDetailViewModel(
             periodLabel = periodLabel,
             categoryBreakdown = breakdown,
             visibleTransactions = inScope.sortedByDescending { it.transactionDate },
-            isLoading = false
+            isLoading = false,
+            periodType = budget.periodType,
         )
         return state to inScope
     }
@@ -231,7 +241,9 @@ class BudgetDetailViewModel(
                 editSelectedCategoryIds = currentLinkedCategoryIds,
                 editNameError = null,
                 editAmountError = null,
-                editCategoryError = null
+                editCategoryError = null,
+                editMonth = YearMonth.of(currentBudget?.year ?: LocalDate.now().year, currentBudget?.month ?: 1),
+                editYear = currentBudget?.year ?: LocalDate.now().year,
             )
         }
     }
@@ -241,7 +253,7 @@ class BudgetDetailViewModel(
     }
 
     fun onEditNameChanged(name: String) {
-        _uiState.update { it.copy(editName = name, editNameError = null) }
+        _uiState.update { it.copy(editName = name.take(MAX_TEXT_LENGTH), editNameError = null) }
     }
 
     fun onEditAmountChanged(text: String) {
@@ -259,6 +271,14 @@ class BudgetDetailViewModel(
         }
     }
 
+    fun onEditMonthSelected(month: YearMonth) {
+        _uiState.update { it.copy(editMonth = month) }
+    }
+
+    fun onEditYearSelected(year: Int) {
+        _uiState.update { it.copy(editYear = year) }
+    }
+
     fun saveEdit() {
         val state = _uiState.value
         val existingBudget = currentBudget ?: return
@@ -269,8 +289,8 @@ class BudgetDetailViewModel(
             hasError = true
         }
         val amount = state.editAmountText.toDoubleOrNull()
-        if (amount == null || amount <= 0.0) {
-            _uiState.update { it.copy(editAmountError = "Enter a valid amount") }
+        if (amount == null || amount <= 0.0 || amount > MAX_AMOUNT) {
+            _uiState.update { it.copy(editAmountError = "Enter a valid amount (max ₹${MAX_AMOUNT.toReadableAmount()})") }
             hasError = true
         }
         if (!existingBudget.isOverall && state.editSelectedCategoryIds.isEmpty()) {
@@ -279,9 +299,12 @@ class BudgetDetailViewModel(
         }
         if (hasError || amount == null) return
 
+        val isMonthly = existingBudget.periodType == "monthly"
         val updatedBudget = existingBudget.copy(
             name = state.editName.trim(),
-            amount = amount
+            amount = amount,
+            month = if (isMonthly) state.editMonth.monthValue else null,
+            year = if (isMonthly) state.editMonth.year else state.editYear
         )
         val categoryIds = if (existingBudget.isOverall) emptyList() else state.editSelectedCategoryIds.toList()
 

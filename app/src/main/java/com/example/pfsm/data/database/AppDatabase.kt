@@ -1,23 +1,20 @@
 package com.example.pfsm.data.database
 
-
-
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.pfsm.data.entities.UserEntity
-import com.example.pfsm.data.entities.DailyLimitEntity
-import com.example.pfsm.data.entities.TransactionEntity
-import com.example.pfsm.data.entities.CategoryEntity
-import com.example.pfsm.data.entities.BudgetEntity
-import com.example.pfsm.data.entities.BudgetCategoryCrossRef
 import com.example.pfsm.data.dao.BudgetDao
 import com.example.pfsm.data.dao.CategoryDao
 import com.example.pfsm.data.dao.DailyLimitDao
 import com.example.pfsm.data.dao.TransactionDao
 import com.example.pfsm.data.dao.UserDao
-
+import com.example.pfsm.data.entities.BudgetCategoryCrossRef
+import com.example.pfsm.data.entities.BudgetEntity
+import com.example.pfsm.data.entities.CategoryEntity
+import com.example.pfsm.data.entities.DailyLimitEntity
+import com.example.pfsm.data.entities.TransactionEntity
+import com.example.pfsm.data.entities.UserEntity
 
 @Database(
     entities = [
@@ -29,7 +26,7 @@ import com.example.pfsm.data.dao.UserDao
         BudgetCategoryCrossRef::class
     ],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -45,12 +42,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "finance_app.db"
                 )
-                    .fallbackToDestructiveMigration()
                     .build().also { INSTANCE = it }
             }
     }

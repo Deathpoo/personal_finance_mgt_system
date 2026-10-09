@@ -12,7 +12,10 @@ import com.example.pfsm.data.repository.DailyLimitRepository
 import com.example.pfsm.data.repository.TransactionRepository
 import com.example.pfsm.data.session.SessionManager
 import androidx.lifecycle.SavedStateHandle
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.toEditableAmountString
+import com.example.pfsm.ui.theme.util.toReadableAmount
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -72,7 +75,7 @@ class AddTransactionViewModel(
                     _uiState.update { it.copy(currentUserId = userId) }
 
                     if (editTransactionId != null) {
-                        val existing = transactionRepository.getById(editTransactionId)
+                        val existing = transactionRepository.getById(editTransactionId, userId)
                         if (existing != null) {
                             originalTransaction = existing
                             _uiState.update {
@@ -127,7 +130,7 @@ class AddTransactionViewModel(
     }
 
     fun onDescriptionChanged(text: String) {
-        _uiState.update { it.copy(description = text) }
+        _uiState.update { it.copy(description = text.take(MAX_TEXT_LENGTH)) }
     }
 
     fun onDateChanged(date: LocalDate) {
@@ -146,6 +149,10 @@ class AddTransactionViewModel(
         val amount = state.amountText.toDoubleOrNull()
         if (amount == null || amount <= 0.0) {
             _uiState.update { it.copy(amountError = "Enter a valid amount") }
+            return
+        }
+        if (amount > MAX_AMOUNT) {
+            _uiState.update { it.copy(amountError = "Maximum amount is ₹${MAX_AMOUNT.toReadableAmount()}") }
             return
         }
 

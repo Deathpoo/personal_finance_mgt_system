@@ -62,6 +62,7 @@ import com.example.pfsm.data.entities.CategoryEntity
 import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.responsiveWidth
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.viewModels.AppViewModelProvider
 import com.example.pfsm.viewModels.CategoryTab
 import com.example.pfsm.viewModels.CategoryViewModel
@@ -156,8 +157,9 @@ fun CategoryScreen(
             defaultType = if (uiState.selectedTab == CategoryTab.EXPENSE) "expense" else "income",
             onDismiss = { showAddSheet = false },
             onAdd = { name, icon, type ->
-                categoryViewModel.addCategory(name, icon, type)
-                showAddSheet = false
+                val error = categoryViewModel.addCategory(name, icon, type)
+                if (error == null) showAddSheet = false
+                error
             }
         )
     }
@@ -216,11 +218,12 @@ private fun CategoryRow(category: CategoryEntity, onDelete: () -> Unit) {
 private fun AddCategoryDialog(
     defaultType: String,
     onDismiss: () -> Unit,
-    onAdd: (name: String, icon: String, type: String) -> Unit
+    onAdd: (name: String, icon: String, type: String) -> String?
 ) {
     var name by remember { mutableStateOf("") }
     var selectedType by remember { mutableStateOf(defaultType) }
     var selectedIcon by remember { mutableStateOf<String?>(null) }
+    var errorText by remember { mutableStateOf<String?>(null) }
 
     val iconOptions = if (selectedType == "income") CategoryIcons.incomeKeys else CategoryIcons.expenseKeys
     val colors = FinanceColors
@@ -239,7 +242,7 @@ private fun AddCategoryDialog(
                         label = "Expense",
                         selected = selectedType == "expense",
                         color = colors.Expense,
-                        onClick = { selectedType = "expense"; selectedIcon = null }
+                        onClick = { selectedType = "expense"; selectedIcon = null; errorText = null }
                     )
                     TypeChip(
                         label = "Income",
@@ -253,9 +256,16 @@ private fun AddCategoryDialog(
 
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { name = it.take(MAX_TEXT_LENGTH); errorText = null },
                     label = { Text("Category name") },
                     singleLine = true,
+                    isError = errorText != null,
+                    supportingText = {
+                        Text(
+                            errorText ?: "${name.length}/$MAX_TEXT_LENGTH",
+                            color = if (errorText != null) colors.Expense else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -292,7 +302,7 @@ private fun AddCategoryDialog(
             TextButton(
                 onClick = {
                     val icon = selectedIcon ?: iconOptions.firstOrNull() ?: "category"
-                    if (name.isNotBlank()) onAdd(name.trim(), icon, selectedType)
+                    errorText = onAdd(name.trim(), icon, selectedType)
                 }
             ) { Text("Add") }
         },

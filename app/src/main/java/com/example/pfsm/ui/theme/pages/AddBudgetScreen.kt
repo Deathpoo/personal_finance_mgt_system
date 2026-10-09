@@ -53,8 +53,12 @@ import com.example.pfsm.data.entities.CategoryEntity
 import com.example.pfsm.ui.theme.design.CategoryIcons
 import com.example.pfsm.ui.theme.design.FinanceColors
 import com.example.pfsm.ui.theme.design.responsiveWidth
+import com.example.pfsm.ui.theme.util.MAX_AMOUNT
+import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.MonthYearPickerDialog
 import com.example.pfsm.ui.theme.util.YearPickerDialog
+import com.example.pfsm.ui.theme.util.amountExceedsMax
+import com.example.pfsm.ui.theme.util.toReadableAmount
 import com.example.pfsm.viewModels.AddBudgetViewModel
 import com.example.pfsm.viewModels.AppViewModelProvider
 import java.time.format.DateTimeFormatter
@@ -68,6 +72,8 @@ fun AddBudgetScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = FinanceColors
+
+    val amountTooLarge = amountExceedsMax(uiState.amountText)
 
     var showPeriodPicker by remember { mutableStateOf(false) }
 
@@ -137,7 +143,12 @@ fun AddBudgetScreen(
                 label = { Text("Budget name") },
                 singleLine = true,
                 isError = uiState.nameError != null,
-                supportingText = uiState.nameError?.let { { Text(it, color = colors.Expense) } },
+                supportingText = {
+                    Text(
+                        uiState.nameError ?: "${uiState.name.length}/$MAX_TEXT_LENGTH",
+                        color = if (uiState.nameError != null) colors.Expense else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -149,8 +160,12 @@ fun AddBudgetScreen(
                 leadingIcon = { Text("₹", fontSize = 18.sp) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = uiState.amountError != null,
-                supportingText = uiState.amountError?.let { { Text(it, color = colors.Expense) } },
+                isError = uiState.amountError != null || amountTooLarge,
+                supportingText = {
+                    val message = uiState.amountError
+                        ?: if (amountTooLarge) "Maximum amount is ₹${MAX_AMOUNT.toReadableAmount()}" else null
+                    message?.let { Text(it, color = colors.Expense) }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -269,6 +284,7 @@ fun AddBudgetScreen(
 
             Button(
                 onClick = { viewModel.save() },
+                enabled = !amountTooLarge,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colors.Gold, contentColor = colors.Ink)
