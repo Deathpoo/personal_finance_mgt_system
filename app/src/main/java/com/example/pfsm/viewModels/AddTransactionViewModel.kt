@@ -16,6 +16,7 @@ import com.example.pfsm.ui.theme.util.MAX_AMOUNT
 import com.example.pfsm.ui.theme.util.MAX_TEXT_LENGTH
 import com.example.pfsm.ui.theme.util.toEditableAmountString
 import com.example.pfsm.ui.theme.util.toReadableAmount
+import kotlinx.coroutines.Job
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,6 +68,8 @@ class AddTransactionViewModel(
 
     private val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE
 
+    private var categoriesJob: Job? = null
+
     init {
         viewModelScope.launch {
             sessionManager.currentUserId
@@ -102,7 +105,8 @@ class AddTransactionViewModel(
         if (transactionType == "credit") "income" else "expense"
 
     private fun loadCategories(userId: Int, transactionType: String) {
-        viewModelScope.launch {
+        categoriesJob?.cancel()
+        categoriesJob = viewModelScope.launch {
             val categoryType = categoryTypeFor(transactionType)
             categoryRepository.getByType(userId, categoryType).collectLatest { categories ->
                 _uiState.update {
