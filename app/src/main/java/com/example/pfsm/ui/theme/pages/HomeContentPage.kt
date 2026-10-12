@@ -353,7 +353,7 @@ fun IncomeExpenseSplitCard(uiState: HomeUiState) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp
@@ -429,7 +429,7 @@ fun DailyLimitCard(uiState: HomeUiState) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp
@@ -581,7 +581,7 @@ fun CalendarShortcutCard(onClick: () -> Unit) {
             .padding(horizontal = 16.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp
