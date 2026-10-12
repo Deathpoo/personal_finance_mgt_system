@@ -99,7 +99,11 @@ fun BudgetDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.notFound) {
+    LaunchedEffect(uiState.isDeleted) {
+        if (uiState.isDeleted) onBack()
+    }
+
+    if (uiState.notFound && !uiState.isDeleted) {
         Box(
             modifier = Modifier
                 .fillMaxSize(),
@@ -138,8 +142,8 @@ fun BudgetDetailScreen(
                     IconButton(onClick = { viewModel.startEdit() }) {
                         Icon(Icons.Default.Edit, contentDescription = "Edit budget")
                     }
-                    //---new change
-                    IconButton(onClick = { viewModel.startDeleteBudget() }) {
+
+                    IconButton(onClick = { viewModel.requestDelete() }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete budget")
                     }
                 }
@@ -218,14 +222,13 @@ fun BudgetDetailScreen(
     }
 
 
-    if (uiState.isDeleting) {
+    if (uiState.showDeleteConfirm) {
         DeleteBudgetDialog(
             budgetName = uiState.name,
             onDelete = {
-                viewModel.confirmDeleteBudget()
-                onBack()
+                viewModel.confirmDelete()
             },
-            onCancel = viewModel::cancelDeleteBudget
+            onCancel = viewModel::dismissDeleteConfirm
         )
     }
 }

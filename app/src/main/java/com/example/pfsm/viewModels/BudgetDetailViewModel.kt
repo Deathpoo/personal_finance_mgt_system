@@ -71,6 +71,8 @@ data class BudgetDetailUiState(
     val isLoading: Boolean = true,
 
     val isDeleting: Boolean = false,
+    val showDeleteConfirm: Boolean = false,
+    val isDeleted: Boolean = false,
 
     val periodType: String = "monthly",
     val editMonth: YearMonth = YearMonth.now(),
@@ -138,6 +140,9 @@ class BudgetDetailViewModel(
                             editCategoryError = current.editCategoryError,
                             editMonth = current.editMonth,
                             editYear = current.editYear,
+                            showDeleteConfirm = current.showDeleteConfirm,
+                            isDeleting = current.isDeleting,
+                            isDeleted = current.isDeleted,
                         )
                     }
                 }
@@ -315,20 +320,22 @@ class BudgetDetailViewModel(
     }
 
 
-    fun startDeleteBudget(){
-        _uiState.update {
-            it.copy(isDeleting = true)
-        }
+    fun requestDelete() {
+        _uiState.update { it.copy(showDeleteConfirm = true) }
+    }
 
+    fun dismissDeleteConfirm() {
+        _uiState.update { it.copy(showDeleteConfirm = false) }
     }
-    fun cancelDeleteBudget(){
-        _uiState.update { it.copy(isDeleting = false) }
-    }
-    fun confirmDeleteBudget(){
-        val existingBudget = currentBudget ?: return
+
+    fun confirmDelete() {
+        val budget = currentBudget ?: return
+        if (_uiState.value.isDeleting) return
+
+        _uiState.update { it.copy(isDeleting = true, showDeleteConfirm = false) }
         viewModelScope.launch {
-            budgetRepository.delete(existingBudget)
+            budgetRepository.delete(budget)
+            _uiState.update { it.copy(isDeleting = false, isDeleted = true) }
         }
-        _uiState.update { it.copy(isDeleting = false) }
     }
 }
