@@ -111,10 +111,8 @@ fun ProfileScreen(
             profileViewModel.clearChangePasswordState()
         }
     }
-
-    if (uiState.isSignedOut) {
-        onSignedOut()
-        return
+    LaunchedEffect(uiState.isSignedOut) {
+        if (uiState.isSignedOut) onSignedOut()
     }
 
     val context = LocalContext.current

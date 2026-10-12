@@ -227,7 +227,7 @@ private fun BudgetCard(card: BudgetCardUiModel, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 8.dp,
             pressedElevation = 12.dp
