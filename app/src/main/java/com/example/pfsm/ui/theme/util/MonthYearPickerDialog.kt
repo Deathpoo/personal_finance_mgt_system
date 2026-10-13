@@ -44,6 +44,7 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
 import androidx.compose.ui.platform.LocalLocale
+import java.time.LocalDate
 
 private val YEAR_RANGE = 1990..(java.time.LocalDate.now().year + 10)
 
@@ -78,7 +79,11 @@ fun MonthYearPickerDialog(
                 )
             }
         },
-        confirmButton = {},
+        confirmButton = {
+            TextButton(onClick = { onConfirm(YearMonth.now()) }) {
+                Text("This month", color = FinanceColors.Gold)
+            }
+        },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
@@ -99,7 +104,11 @@ fun YearPickerDialog(
                 onYearSelected = { onConfirm(it) }
             )
         },
-        confirmButton = {},
+        confirmButton = {
+            TextButton(onClick = { onConfirm(LocalDate.now().year) }) {
+                Text("This year", color = FinanceColors.Gold)
+            }
+        },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
 }
