@@ -21,6 +21,8 @@ interface AppContainer {
     val budgetRepository: BudgetRepository
     val settingsRepository: SettingsRepository
     val sessionManager: SessionManager
+
+    val sampleDataSeeder: SampleDataSeeder
 }
 
 class AppDataContainer(private val context: Context) : AppContainer {
@@ -44,5 +46,13 @@ class AppDataContainer(private val context: Context) : AppContainer {
     }
     override val budgetRepository: BudgetRepository by lazy {
         BudgetRepository(database.budgetDao())
+    }
+    override val sampleDataSeeder: SampleDataSeeder by lazy {
+        SampleDataSeeder(
+            categoryRepository = categoryRepository,
+            transactionRepository = transactionRepository,
+            budgetRepository = budgetRepository,
+            dailyLimitRepository = dailyLimitRepository
+        )
     }
 }

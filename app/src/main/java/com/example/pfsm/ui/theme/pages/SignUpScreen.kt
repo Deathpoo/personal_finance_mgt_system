@@ -10,16 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,6 +53,38 @@ fun SignUpScreen(
     onGoToSignIn: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    if (uiState.showSampleDataPrompt) {
+        AlertDialog(
+            onDismissRequest = { /* must choose; no dismiss */ },
+            title = { Text("Load sample data?") },
+            text = {
+                Text(
+                    "Fill the app with demo transactions, budgets and daily limits " +
+                            "so you can explore every feature. You can delete them later."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.loadSampleData() },
+                    enabled = !uiState.isSeeding
+                ) {
+                    if (uiState.isSeeding) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text("Yes, load")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.skipSampleData() },
+                    enabled = !uiState.isSeeding
+                ) { Text("No, start empty") }
+            }
+        )
+    }
+
     val colors = FinanceColors
     var passwordVisible by remember { mutableStateOf(false) }
 

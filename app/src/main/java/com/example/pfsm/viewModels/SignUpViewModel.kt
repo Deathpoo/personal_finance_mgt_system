@@ -2,6 +2,7 @@ package com.example.pfsm.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pfsm.data.SampleDataSeeder
 import com.example.pfsm.data.entities.UserEntity
 import com.example.pfsm.data.repository.UserRepository
 import com.example.pfsm.data.session.SessionManager
@@ -28,12 +29,18 @@ data class SignUpUiState(
     val confirmPasswordError: String? = null,
     val generalError: String? = null,
     val isLoading: Boolean = false,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+
+    //for sample data load
+    val showSampleDataPrompt: Boolean = false,
+    val isSeeding: Boolean = false,
+    val newUserId: Int? = null
 )
 
 class SignUpViewModel(
     private val userRepository: UserRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val sampleDataSeeder: SampleDataSeeder
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignUpUiState())
@@ -90,7 +97,12 @@ class SignUpViewModel(
             )
             val newUserId = userRepository.register(newUser).toInt()
             sessionManager.setCurrentUser(newUserId)
-            _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+
+            // Don't set isSuccess here. Show the "Load sample data?" dialog first.
+            // isSuccess is set later by loadSampleData() or skipSampleData().
+            _uiState.update {
+                it.copy(isLoading = false, newUserId = newUserId, showSampleDataPrompt = true)
+            }
         }
     }
 
@@ -110,5 +122,18 @@ class SignUpViewModel(
         _uiState.update {
             it.copy(confirmPasswordError = validateConfirmPassword(it.password, it.confirmPassword))
         }
+    }
+
+    fun loadSampleData() {
+        val userId = _uiState.value.newUserId ?: return
+        _uiState.update { it.copy(isSeeding = true) }
+        viewModelScope.launch {
+            sampleDataSeeder.seed(userId)
+            _uiState.update { it.copy(isSeeding = false, showSampleDataPrompt = false, isSuccess = true) }
+        }
+    }
+
+    fun skipSampleData() {
+        _uiState.update { it.copy(showSampleDataPrompt = false, isSuccess = true) }
     }
 }

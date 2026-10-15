@@ -110,7 +110,8 @@ object AppViewModelProvider {
         initializer {
             SignUpViewModel(
                 userRepository = pfsmApplication().container.userRepository,
-                sessionManager = pfsmApplication().container.sessionManager
+                sessionManager = pfsmApplication().container.sessionManager,
+                sampleDataSeeder = pfsmApplication().container.sampleDataSeeder
             )
         }
     }

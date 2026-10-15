@@ -19,5 +19,6 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
     suspend fun add(category: CategoryEntity): Long = categoryDao.insert(category)
 
     suspend fun delete(category: CategoryEntity) = categoryDao.delete(category)
+    suspend fun countForUser(userId: Int): Int = categoryDao.countForUser(userId)
 
 }
